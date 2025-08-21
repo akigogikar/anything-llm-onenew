@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import System from "@/models/system";
 import showToast from "@/utils/toast";
 import { Plus } from "@phosphor-icons/react";
-import Sidebar from "@/components/SettingsSidebar";
+import Sidebar from "@/components/layout/SettingsSidebar";
 import { isMobile } from "react-device-detect";
 import CTAButton from "@/components/lib/CTAButton";
 import VariableRow from "./VariableRow";

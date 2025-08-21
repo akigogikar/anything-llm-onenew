@@ -1,4 +1,4 @@
-import Sidebar from "@/components/SettingsSidebar";
+import Sidebar from "@/components/layout/SettingsSidebar";
 import useQuery from "@/hooks/useQuery";
 import System from "@/models/system";
 import { useEffect, useState } from "react";

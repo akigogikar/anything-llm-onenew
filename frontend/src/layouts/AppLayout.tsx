@@ -1,5 +1,5 @@
 import React, { type ReactNode } from "react";
-import Sidebar, { SidebarMobileHeader } from "@/components/Sidebar";
+import Sidebar, { SidebarMobileHeader } from "@/components/layout/Sidebar";
 import { isMobile } from "react-device-detect";
 import "@/styles/layout.css";
 

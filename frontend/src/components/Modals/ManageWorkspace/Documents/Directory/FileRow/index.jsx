@@ -5,7 +5,7 @@ import {
   middleTruncate,
 } from "@/utils/directories";
 import { File } from "@phosphor-icons/react";
-import StatusBadge from "@/components/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
 export default function FileRow({ item, selected, toggleSelection }) {
   return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Sidebar from "@/components/SettingsSidebar";
+import Sidebar from "@/components/layout/SettingsSidebar";
 import { isMobile } from "react-device-detect";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";

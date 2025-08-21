@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Info, Warning } from "@phosphor-icons/react";
-import UserIcon from "../../../../UserIcon";
+import UserIcon from "@/components/common/UserIcon";
 import Actions from "./Actions";
 import renderMarkdown from "@/utils/chat/markdown";
 import { userFromStorage } from "@/utils/request";

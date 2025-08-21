@@ -8,7 +8,7 @@ import { ArrowUUpLeft, Eye, File, PushPin } from "@phosphor-icons/react";
 import Workspace from "@/models/workspace";
 import showToast from "@/utils/toast";
 import System from "@/models/system";
-import StatusBadge from "@/components/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
 export default function WorkspaceFileRow({
   item,

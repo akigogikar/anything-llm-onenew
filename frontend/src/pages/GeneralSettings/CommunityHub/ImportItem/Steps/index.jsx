@@ -1,6 +1,6 @@
 import { isMobile } from "react-device-detect";
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/SettingsSidebar";
+import Sidebar from "@/components/layout/SettingsSidebar";
 import Introduction from "./Introduction";
 import PullAndReview from "./PullAndReview";
 import Completed from "./Completed";

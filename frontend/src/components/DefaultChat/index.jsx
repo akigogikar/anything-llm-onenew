@@ -13,7 +13,7 @@ import { isMobile } from "react-device-detect";
 import { SidebarMobileHeader } from "../Sidebar";
 import ChatBubble from "../ChatBubble";
 import System from "@/models/system";
-import UserIcon from "../UserIcon";
+import UserIcon from "@/components/common/UserIcon";
 import { userFromStorage } from "@/utils/request";
 import useUser from "@/hooks/useUser";
 import { useTranslation, Trans } from "react-i18next";

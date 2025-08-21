@@ -1,5 +1,5 @@
 import React from "react";
-import UserIcon from "../UserIcon";
+import UserIcon from "@/components/common/UserIcon";
 import { userFromStorage } from "@/utils/request";
 import renderMarkdown from "@/utils/chat/markdown";
 import DOMPurify from "@/utils/chat/purify";
