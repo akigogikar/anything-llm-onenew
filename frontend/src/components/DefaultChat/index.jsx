@@ -10,7 +10,7 @@ import NewWorkspaceModal, {
 } from "../Modals/NewWorkspace";
 import paths from "@/utils/paths";
 import { isMobile } from "react-device-detect";
-import { SidebarMobileHeader } from "../Sidebar";
+import { SidebarMobileHeader } from "@/components/layout/Sidebar";
 import ChatBubble from "../ChatBubble";
 import System from "@/models/system";
 import UserIcon from "@/components/common/UserIcon";

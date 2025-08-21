@@ -5,7 +5,7 @@ import PromptInput, { PROMPT_INPUT_EVENT } from "./PromptInput";
 import Workspace from "@/models/workspace";
 import handleChat, { ABORT_STREAM_EVENT } from "@/utils/chat";
 import { isMobile } from "react-device-detect";
-import { SidebarMobileHeader } from "../../Sidebar";
+import { SidebarMobileHeader } from "@/components/layout/Sidebar";
 import { useParams } from "react-router-dom";
 import { v4 } from "uuid";
 import handleSocketResponse, {
