@@ -1,4 +1,5 @@
 @import "./styles/theme.css";
+@import "./styles/overlay.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
