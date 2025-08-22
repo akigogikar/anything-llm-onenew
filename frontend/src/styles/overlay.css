@@ -1,0 +1,85 @@
+/* Gradient overlay utilities for OneNew brand surfaces */
+
+:root {
+  /* Brand-driven color stops */
+  --gradient-blue: var(--brand-secondary);
+  --gradient-violet: var(--brand-primary);
+  --gradient-pink: var(--brand-accent);
+
+  /* Overlay tuning variables */
+  --overlay-angle: 135deg; /* default direction */
+  --overlay-alpha: 0.35; /* stronger in dark mode */
+  --glass-blur: 16px; /* base blur for frosted surfaces */
+
+  /* RGB helpers for fallbacks */
+  --theme-bg-sidebar-rgb: 14 15 15;
+  --theme-bg-chat-rgb: 27 27 30;
+}
+
+[data-theme="light"] {
+  --overlay-alpha: 0.2; /* lighter overlay for legibility */
+  --theme-bg-sidebar-rgb: 237 242 250;
+  --theme-bg-chat-rgb: 255 255 255;
+}
+
+/* Option 1: layered gradient directly on container */
+.app {
+  background-color: var(--theme-bg-primary);
+  /* Fallback using rgba() for browsers without color-mix */
+  background-image: linear-gradient(
+    var(--overlay-angle),
+    rgba(var(--brand-secondary-rgb), var(--overlay-alpha)),
+    rgba(var(--brand-primary-rgb), var(--overlay-alpha)),
+    rgba(var(--brand-accent-rgb), var(--overlay-alpha))
+  );
+  /* Modern color-mix gradient */
+  background-image: linear-gradient(
+    var(--overlay-angle),
+    color-mix(in srgb, var(--gradient-blue) calc(var(--overlay-alpha) * 100%), transparent),
+    color-mix(in srgb, var(--gradient-violet) calc(var(--overlay-alpha) * 100%), transparent),
+    color-mix(in srgb, var(--gradient-pink) calc(var(--overlay-alpha) * 100%), transparent)
+  );
+  background-attachment: fixed; /* keep gradient steady while scrolling */
+}
+
+/* Option 2: pseudo-element overlay */
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  /* Fallback gradient */
+  background-image: linear-gradient(
+    var(--overlay-angle),
+    rgba(var(--brand-secondary-rgb), var(--overlay-alpha)),
+    rgba(var(--brand-primary-rgb), var(--overlay-alpha)),
+    rgba(var(--brand-accent-rgb), var(--overlay-alpha))
+  );
+  /* color-mix gradient */
+  background-image: linear-gradient(
+    var(--overlay-angle),
+    color-mix(in srgb, var(--gradient-blue) calc(var(--overlay-alpha) * 100%), transparent),
+    color-mix(in srgb, var(--gradient-violet) calc(var(--overlay-alpha) * 100%), transparent),
+    color-mix(in srgb, var(--gradient-pink) calc(var(--overlay-alpha) * 100%), transparent)
+  );
+  background-attachment: fixed;
+  /* mix-blend-mode can be toggled via design if needed */
+}
+
+/* Frosted glass surfaces */
+.sidebar {
+  background-color: var(--theme-bg-sidebar); /* fallback */
+  background-color: color-mix(in srgb, var(--theme-bg-sidebar) 80%, transparent);
+  background-color: rgba(var(--theme-bg-sidebar-rgb), 0.8); /* rgba fallback */
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.chat-bubble {
+  background-color: var(--theme-bg-chat);
+  background-color: color-mix(in srgb, var(--theme-bg-chat) 80%, transparent);
+  background-color: rgba(var(--theme-bg-chat-rgb), 0.8);
+  backdrop-filter: blur(calc(var(--glass-blur) / 1.5));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) / 1.5));
+}
