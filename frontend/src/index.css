@@ -1,4 +1,4 @@
-@import "./styles/theme.css";
+ @import "./styles/theme.css";
 @import "./styles/overlay.css";
 @tailwind base;
 @tailwind components;
@@ -479,7 +479,7 @@ a {
 .show-scrollbar {
   overflow-y: scroll !important;
   scrollbar-width: thin !important;
-  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1) !important;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1) !important;
   -webkit-overflow-scrolling: touch !important;
 }
 
