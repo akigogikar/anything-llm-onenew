@@ -182,6 +182,18 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 
 [Learn about vector caching](./server/storage/vector-cache/VECTOR_CACHE.md)
 
+## Theme color tools
+
+```bash
+# 1) Audit
+node scripts/onenew-color-audit.mjs  # produces color-audit.csv and unique-hexes.csv
+
+# 2) (Optional) curate mapping for any unresolved hexes in unique-hexes.csv
+
+# 3) Codemod
+node scripts/onenew-color-codemod.mjs --map scripts/mapping.csv
+```
+
 ## External Apps & Integrations
 
 _These are apps that are not maintained by Mintplex Labs, but are compatible with OneNew. A listing here is not an endorsement._
