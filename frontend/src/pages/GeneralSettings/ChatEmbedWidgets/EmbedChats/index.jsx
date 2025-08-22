@@ -157,7 +157,7 @@ export default function EmbedChatsView() {
                       handleDumpChats(key);
                       setShowMenu(false);
                     }}
-                    className="w-full text-left px-4 py-2 text-white text-sm hover:bg-[#3D4147] light:hover:bg-theme-sidebar-item-hover"
+                    className="w-full text-left px-4 py-2 text-white text-sm hover:bg-[var(--muted)] light:hover:bg-theme-sidebar-item-hover"
                   >
                     {data.name}
                   </button>
