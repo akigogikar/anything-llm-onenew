@@ -1,85 +1,61 @@
 /* Gradient overlay utilities for OneNew brand surfaces */
 
+/* Base variables */
 :root {
-  /* Brand-driven color stops */
-  --gradient-blue: var(--brand-secondary);
-  --gradient-violet: var(--brand-primary);
-  --gradient-pink: var(--brand-accent);
+  --overlay-angle: 135deg;
+  --overlay-cyan: var(--brand-secondary);
+  --overlay-blue: color-mix(in srgb, var(--brand-secondary) 40%, var(--brand-primary));
+  --overlay-violet: var(--brand-primary);
+  --overlay-pink: var(--brand-accent);
+}
 
-  /* Overlay tuning variables */
-  --overlay-angle: 135deg; /* default direction */
-  --overlay-alpha: 0.35; /* stronger in dark mode */
-  --glass-blur: 16px; /* base blur for frosted surfaces */
-
-  /* RGB helpers for fallbacks */
+/* Dark theme */
+[data-theme="dark"] {
+  --overlay-alpha: 0.22; /* lighter, less overwhelming */
+  --overlay-blend: soft-light;
   --theme-bg-sidebar-rgb: 14 15 15;
   --theme-bg-chat-rgb: 27 27 30;
 }
 
+/* Light theme */
 [data-theme="light"] {
-  --overlay-alpha: 0.2; /* lighter overlay for legibility */
+  --overlay-alpha: 0.30; /* more visible */
+  --overlay-blend: normal;
   --theme-bg-sidebar-rgb: 237 242 250;
   --theme-bg-chat-rgb: 255 255 255;
 }
 
-/* Option 1: layered gradient directly on container */
+/* Application shell overlay */
 .app {
+  position: relative;
   background-color: var(--theme-bg-primary);
-  /* Fallback using rgba() for browsers without color-mix */
-  background-image: linear-gradient(
-    var(--overlay-angle),
-    rgba(var(--brand-secondary-rgb), var(--overlay-alpha)),
-    rgba(var(--brand-primary-rgb), var(--overlay-alpha)),
-    rgba(var(--brand-accent-rgb), var(--overlay-alpha))
-  );
-  /* Modern color-mix gradient */
-  background-image: linear-gradient(
-    var(--overlay-angle),
-    color-mix(in srgb, var(--gradient-blue) calc(var(--overlay-alpha) * 100%), transparent),
-    color-mix(in srgb, var(--gradient-violet) calc(var(--overlay-alpha) * 100%), transparent),
-    color-mix(in srgb, var(--gradient-pink) calc(var(--overlay-alpha) * 100%), transparent)
-  );
-  background-attachment: fixed; /* keep gradient steady while scrolling */
 }
-
-/* Option 2: pseudo-element overlay */
 .app::before {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  /* Fallback gradient */
   background-image: linear-gradient(
     var(--overlay-angle),
-    rgba(var(--brand-secondary-rgb), var(--overlay-alpha)),
-    rgba(var(--brand-primary-rgb), var(--overlay-alpha)),
-    rgba(var(--brand-accent-rgb), var(--overlay-alpha))
-  );
-  /* color-mix gradient */
-  background-image: linear-gradient(
-    var(--overlay-angle),
-    color-mix(in srgb, var(--gradient-blue) calc(var(--overlay-alpha) * 100%), transparent),
-    color-mix(in srgb, var(--gradient-violet) calc(var(--overlay-alpha) * 100%), transparent),
-    color-mix(in srgb, var(--gradient-pink) calc(var(--overlay-alpha) * 100%), transparent)
+    color-mix(in srgb, var(--overlay-cyan) calc(var(--overlay-alpha) * 100%), transparent) 15%,
+    color-mix(in srgb, var(--overlay-blue) calc(var(--overlay-alpha) * 100%), transparent) 35%,
+    color-mix(in srgb, var(--overlay-violet) calc(var(--overlay-alpha) * 100%), transparent) 65%,
+    color-mix(in srgb, var(--overlay-pink) calc(var(--overlay-alpha) * 100%), transparent) 100%
   );
   background-attachment: fixed;
-  /* mix-blend-mode can be toggled via design if needed */
+  mix-blend-mode: var(--overlay-blend);
 }
 
 /* Frosted glass surfaces */
 .sidebar {
-  background-color: var(--theme-bg-sidebar); /* fallback */
-  background-color: color-mix(in srgb, var(--theme-bg-sidebar) 80%, transparent);
-  background-color: rgba(var(--theme-bg-sidebar-rgb), 0.8); /* rgba fallback */
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background-color: rgba(var(--theme-bg-sidebar-rgb), 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .chat-bubble {
-  background-color: var(--theme-bg-chat);
-  background-color: color-mix(in srgb, var(--theme-bg-chat) 80%, transparent);
-  background-color: rgba(var(--theme-bg-chat-rgb), 0.8);
-  backdrop-filter: blur(calc(var(--glass-blur) / 1.5));
-  -webkit-backdrop-filter: blur(calc(var(--glass-blur) / 1.5));
+  background-color: rgba(var(--theme-bg-chat-rgb), 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
