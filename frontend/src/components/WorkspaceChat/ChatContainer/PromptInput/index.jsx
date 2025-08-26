@@ -256,8 +256,8 @@ export default function PromptInput({
         onSubmit={handleSubmit}
         className="flex flex-col gap-y-1 rounded-t-lg w-full mx-auto items-center"
       >
-        <div className="flex items-center rounded-lg md:mb-4 md:w-full">
-          <div className="w-[95vw] md:max-w-[80%] bg-theme-bg-chat-input light:bg-white light:border-solid light:border-[1px] light:border-theme-chat-input-border shadow-sm rounded-2xl flex flex-col px-2 overflow-hidden">
+        <div className="flex items-center justify-center rounded-lg md:mb-4 md:w-full">
+          <div className="w-[95vw] md:w-full md:max-w-[80%] bg-theme-bg-chat-input light:bg-white light:border-solid light:border-[1px] light:border-theme-chat-input-border shadow-sm rounded-2xl flex flex-col px-2 overflow-hidden">
             <AttachmentManager attachments={attachments} />
             <div className="flex items-center border-b border-theme-chat-input-border mx-3">
               <textarea
