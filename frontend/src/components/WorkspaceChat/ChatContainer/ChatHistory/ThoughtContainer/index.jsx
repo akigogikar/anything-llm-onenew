@@ -6,8 +6,8 @@ import { isMobile } from "react-device-detect";
 import ThinkingAnimation from "@/media/animations/thinking-animation.webm";
 import ThinkingStatic from "@/media/animations/thinking-static.png";
 
-const THOUGHT_KEYWORDS = ["thought", "thinking", "think", "thought_chain"];
-const CLOSING_TAGS = [...THOUGHT_KEYWORDS, "response", "answer"];
+const THOUGHT_KEYWORDS = ["thought", "thinking", "think", "thought_chain", "analysis"];
+const CLOSING_TAGS = [...THOUGHT_KEYWORDS, "response", "answer", "assistantfinal"];
 export const THOUGHT_REGEX_OPEN = new RegExp(
   THOUGHT_KEYWORDS.map((keyword) => `<${keyword}\\s*(?:[^>]*?)?\\s*>`).join("|")
 );
