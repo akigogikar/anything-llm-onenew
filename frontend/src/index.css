@@ -1,3 +1,11 @@
+/* ============================================================================
+   index-merged.css
+   - Base: index-new.css (frosted-glass, brand gradients, extended tokens)
+   - Restored: legacy behaviors from index-old.css (message/citation animations,
+               blinking cursor, etc.) ONLY where missing to avoid duplication.
+   This file is auto-generated.
+   ============================================================================ */
+
 @import "./styles/theme.css";
 @import "./styles/overlay.css";
 @import "./styles/frosted.css";
