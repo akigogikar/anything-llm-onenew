@@ -9,14 +9,13 @@ const UserIcon = memo(({ role }) => {
   return (
     <div className="relative w-[35px] h-[35px] rounded-full flex-shrink-0 overflow-hidden">
       {role === "user" && <RenderUserPfp pfp={pfp} />}
-
       {role !== "user" && (
         <img
           src={WorkspaceDefaultPfp}
           alt="system profile picture"
-          // FIX: fill the circle, center, remove baseline gap, and paint a bg
-          className="absolute inset-0 w-full h-full object-cover rounded-full border border-white/40
-                     block bg-gradient-to-br from-[#1FD3E6] via-[#6C6BFF] to-[#8A46F6]"
+          className="absolute inset-0 w-full h-full object-cover rounded-full block
+                     border-solid border border-white/40
+                     light:border-theme-sidebar-border light:bg-theme-bg-chat-input"
           decoding="async"
           draggable="false"
         />
@@ -26,7 +25,6 @@ const UserIcon = memo(({ role }) => {
 });
 
 function RenderUserPfp({ pfp }) {
-  // If no uploaded PFP, fill the circle with the default too
   if (!pfp)
     return (
       <img
