@@ -45,21 +45,21 @@ class MetaGenerator {
       {
         tag: "title",
         props: null,
-        content: "OneNew | Your personal LLM trained on anything",
+        content: "OneNew | Private AI Workspaces",
       },
 
       {
         tag: "meta",
         props: {
           name: "title",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
       {
         tag: "meta",
         props: {
           description: "title",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
 
@@ -73,14 +73,14 @@ class MetaGenerator {
         tag: "meta",
         props: {
           property: "og:title",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
       {
         tag: "meta",
         props: {
           property: "og:description",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
       {
@@ -105,14 +105,14 @@ class MetaGenerator {
         tag: "meta",
         props: {
           property: "twitter:title",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
       {
         tag: "meta",
         props: {
           property: "twitter:description",
-          content: "OneNew | Your personal LLM trained on anything",
+          content: "OneNew | Private AI Workspaces",
         },
       },
       {
@@ -191,7 +191,7 @@ class MetaGenerator {
           props: null,
           content:
             customTitle ??
-            "OneNew | Your personal LLM trained on anything",
+            "OneNew | Private AI Workspaces",
         },
       ];
     }
