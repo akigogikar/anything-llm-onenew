@@ -128,6 +128,16 @@
   background: var(--bubble-ai);
 }
 
+/* analysis/thought bubbles */
+.bubble.analysis {
+  background: var(--chip);
+  color: var(--theme-text-secondary);
+  border-left: 4px solid var(--brand-cyan);
+  font-style: italic;
+  margin-bottom: var(--pad-2);
+  animation: thoughtTransition 0.5s ease-out forwards;
+}
+
 .prompt {
   background: var(--input-bg);
   border: 1px solid var(--glass-border);
