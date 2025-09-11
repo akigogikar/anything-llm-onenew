@@ -110,7 +110,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
           uid: v4(),
           file,
           contentString: await toBase64(file),
-          status: "success",
+          status: "READY",
           error: null,
           type: "attachment",
         });
@@ -119,7 +119,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
           uid: v4(),
           file,
           contentString: null,
-          status: "in_progress",
+          status: "PENDING",
           error: null,
           type: "upload",
         });
@@ -145,7 +145,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
           uid: v4(),
           file,
           contentString: await toBase64(file),
-          status: "success",
+          status: "READY",
           error: null,
           type: "attachment",
         });
@@ -154,7 +154,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
           uid: v4(),
           file,
           contentString: null,
-          status: "in_progress",
+          status: "PENDING",
           error: null,
           type: "upload",
         });
@@ -180,7 +180,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
         Workspace.uploadAndEmbedFile(workspace.slug, formData).then(
           ({ response, data }) => {
             const updates = {
-              status: response.ok ? "success" : "failed",
+              status: response.ok ? "READY" : "FAILED",
               error: data?.error ?? null,
               document: data?.document,
             };
