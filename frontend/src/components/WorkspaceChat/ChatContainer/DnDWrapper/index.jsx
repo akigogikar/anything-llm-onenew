@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import DndIcon from "./dnd-icon.png";
 import Workspace from "@/models/workspace";
 import useUser from "@/hooks/useUser";
+import showToast from "@/utils/toast";
 
 export const DndUploaderContext = createContext();
 export const REMOVE_ATTACHMENT_EVENT = "ATTACHMENT_REMOVE";
@@ -173,7 +174,6 @@ export function DnDFileUploaderProvider({ workspace, children }) {
     const promises = [];
 
     for (const attachment of newAttachments) {
-
       const formData = new FormData();
       formData.append("file", attachment.file, attachment.file.name);
       promises.push(
@@ -196,6 +196,12 @@ export function DnDFileUploaderProvider({ workspace, children }) {
                 }
               );
             });
+
+            if (response.ok) {
+              showToast(`${attachment.file.name} uploaded`, "success");
+            } else {
+              showToast(`Failed to upload ${attachment.file.name}`, "error");
+            }
           }
         )
       );
