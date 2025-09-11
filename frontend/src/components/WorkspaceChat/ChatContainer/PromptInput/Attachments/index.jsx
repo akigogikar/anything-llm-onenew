@@ -1,5 +1,6 @@
 import {
-  CircleNotch,
+  Circle,
+  CircleHalf,
   FileCode,
   FileCsv,
   FileDoc,
@@ -56,12 +57,13 @@ function AttachmentItem({ attachment }) {
     return (
       <div className="relative flex items-center gap-x-1 rounded-lg bg-theme-attachment-bg border-none w-[180px] group">
         <div
-          className={`bg-theme-attachment-icon-spinner-bg rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
+          className={`relative ${iconBgColor} rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
         >
-          <CircleNotch
-            size={18}
-            weight="bold"
-            className="text-theme-attachment-icon-spinner animate-spin"
+          <Icon size={24} className="text-theme-attachment-icon" />
+          <CircleHalf
+            size={14}
+            weight="fill"
+            className="absolute -bottom-1 -right-1 text-theme-attachment-icon"
           />
         </div>
         <div className="flex flex-col w-[125px]">
@@ -149,16 +151,28 @@ function AttachmentItem({ attachment }) {
             </button>
           </div>
           {contentString ? (
-            <img
-              alt={`Preview of ${file.name}`}
-              src={contentString}
-              className={`${iconBgColor} w-[30px] h-[30px] rounded-lg flex items-center justify-center m-1`}
-            />
+            <div className="relative w-[30px] h-[30px] m-1">
+              <img
+                alt={`Preview of ${file.name}`}
+                src={contentString}
+                className={`${iconBgColor} w-full h-full rounded-lg`}
+              />
+              <Circle
+                size={14}
+                weight="fill"
+                className="absolute -bottom-1 -right-1 text-theme-attachment-icon"
+              />
+            </div>
           ) : (
             <div
-              className={`${iconBgColor} rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
+              className={`relative ${iconBgColor} rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
             >
               <Icon size={24} className="text-theme-attachment-icon" />
+              <Circle
+                size={14}
+                weight="fill"
+                className="absolute -bottom-1 -right-1 text-theme-attachment-icon"
+              />
             </div>
           )}
           <div className="flex flex-col w-[125px]">
@@ -198,16 +212,21 @@ function AttachmentItem({ attachment }) {
             </button>
           </div>
           <div
-            className={`${iconBgColor} rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
+            className={`relative ${iconBgColor} rounded-md flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] m-1`}
           >
             <Icon
               size={24}
               weight="light"
               className="text-theme-attachment-icon"
             />
+            <Circle
+              size={14}
+              weight="fill"
+              className="absolute -bottom-1 -right-1 text-theme-attachment-icon"
+            />
           </div>
           <div className="flex flex-col w-[125px]">
-            <p className="text-white text-xs font-semibold truncate">
+            <p className="text-theme-attachment-text text-xs font-semibold truncate">
               {file.name}
             </p>
             <p className="text-theme-attachment-text-secondary text-[10px] leading-[14px] font-medium">
