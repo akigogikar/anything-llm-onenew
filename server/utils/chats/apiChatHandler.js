@@ -6,7 +6,10 @@ const {
   getLLMProvider,
   workspaceVectorNamespace,
 } = require("../helpers");
-const { writeResponseChunk } = require("../helpers/chat/responses");
+const {
+  writeResponseChunk,
+  filterPromptAttachments,
+} = require("../helpers/chat/responses");
 const {
   chatPrompt,
   sourceIdentifier,
@@ -56,6 +59,7 @@ async function chatSync({
 }) {
   const uuid = uuidv4();
   const chatMode = mode ?? "chat";
+  const promptAttachments = filterPromptAttachments(attachments);
 
   // If the user wants to reset the chat history we do so pre-flight
   // and continue execution. If no message is provided then the user intended
@@ -303,7 +307,7 @@ async function chatSync({
       userPrompt: message,
       contextTexts,
       chatHistory,
-      attachments,
+      attachments: promptAttachments,
     },
     rawHistory
   );
@@ -381,6 +385,7 @@ async function streamChat({
 }) {
   const uuid = uuidv4();
   const chatMode = mode ?? "chat";
+  const promptAttachments = filterPromptAttachments(attachments);
 
   // If the user wants to reset the chat history we do so pre-flight
   // and continue execution. If no message is provided then the user intended
@@ -641,7 +646,7 @@ async function streamChat({
       userPrompt: message,
       contextTexts,
       chatHistory,
-      attachments,
+      attachments: promptAttachments,
     },
     rawHistory
   );

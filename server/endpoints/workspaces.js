@@ -11,6 +11,7 @@ const {
   isWithin,
   resolveMultipartPath,
   fileData,
+  documentsPath,
 } = require("../utils/files");
 const { Workspace } = require("../models/workspace");
 const { Document } = require("../models/documents");
@@ -151,8 +152,7 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason } =
-          await Collector.processDocument(targetName);
+        const { success, reason } = await Collector.processDocument(targetName);
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
@@ -742,7 +742,9 @@ function workspaceEndpoints(app) {
         const isPathError = /Invalid path/.test(error.message);
         response
           .status(isPathError ? 400 : 500)
-          .json({ message: isPathError ? error.message : "Internal server error" });
+          .json({
+            message: isPathError ? error.message : "Internal server error",
+          });
       }
     }
   );
@@ -789,7 +791,9 @@ function workspaceEndpoints(app) {
         const isPathError = /Invalid path/.test(error.message);
         response
           .status(isPathError ? 400 : 500)
-          .json({ message: isPathError ? error.message : "Internal server error" });
+          .json({
+            message: isPathError ? error.message : "Internal server error",
+          });
       }
     }
   );
@@ -999,7 +1003,11 @@ function workspaceEndpoints(app) {
           const data = await fileData(document.location);
           const { vectorized, error } = await VectorDb.addDocumentToNamespace(
             namespace,
-            { ...data, docId: existingDoc.docId, version: existingDoc.version + 1 },
+            {
+              ...data,
+              docId: existingDoc.docId,
+              version: existingDoc.version + 1,
+            },
             document.location
           );
           if (!vectorized)
@@ -1009,11 +1017,12 @@ function workspaceEndpoints(app) {
 
           await Document.replace(existingDoc.id, document.location);
         } else {
-          const { failedToEmbed = [], errors = [] } = await Document.addDocuments(
-            currWorkspace,
-            [document.location],
-            response.locals?.user?.id
-          );
+          const { failedToEmbed = [], errors = [] } =
+            await Document.addDocuments(
+              currWorkspace,
+              [document.location],
+              response.locals?.user?.id
+            );
 
           if (failedToEmbed.length > 0)
             return response
@@ -1029,6 +1038,69 @@ function workspaceEndpoints(app) {
       } catch (e) {
         console.error(e.message, e);
         response.sendStatus(500).end();
+      }
+    }
+  );
+
+  app.get(
+    "/workspace/:slug/document/:documentId/download",
+    [validatedRequest, flexUserRoleValid([ROLES.all])],
+    async function (request, response) {
+      try {
+        const { slug = null, documentId = null } = request.params;
+        const user = await userFromSession(request, response);
+        const currWorkspace = multiUserMode(response)
+          ? await Workspace.getWithUser(user, { slug })
+          : await Workspace.get({ slug });
+
+        if (!currWorkspace) {
+          return response.sendStatus(404).end();
+        }
+
+        const document = await Document.get({
+          id: Number(documentId),
+          workspaceId: currWorkspace.id,
+        });
+
+        if (!document) {
+          return response.sendStatus(404).end();
+        }
+
+        let absolutePath;
+        try {
+          absolutePath = path.resolve(
+            documentsPath,
+            normalizePath(document.docpath)
+          );
+        } catch (error) {
+          console.error("Invalid document path for download:", error);
+          return response.sendStatus(400).end();
+        }
+
+        let fileIsValid = false;
+        try {
+          fileIsValid =
+            fs.existsSync(absolutePath) && fs.lstatSync(absolutePath).isFile();
+        } catch (error) {
+          console.error("Error accessing document for download:", error);
+          fileIsValid = false;
+        }
+
+        if (!fileIsValid || !isWithin(documentsPath, absolutePath)) {
+          return response.sendStatus(404).end();
+        }
+
+        response.type("application/json");
+        response.setHeader(
+          "Content-Disposition",
+          `inline; filename="${path.basename(document.docpath)}"`
+        );
+        return response.sendFile(absolutePath);
+      } catch (error) {
+        console.error("Error returning workspace document:", error);
+        return response
+          .status(500)
+          .json({ success: false, error: "Failed to fetch attachment." });
       }
     }
   );

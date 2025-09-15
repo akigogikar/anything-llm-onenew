@@ -6,6 +6,7 @@ import DndIcon from "./dnd-icon.png";
 import Workspace from "@/models/workspace";
 import useUser from "@/hooks/useUser";
 import showToast from "@/utils/toast";
+import { API_BASE } from "@/utils/constants";
 
 export const DndUploaderContext = createContext();
 export const REMOVE_ATTACHMENT_EVENT = "ATTACHMENT_REMOVE";
@@ -78,22 +79,42 @@ export function DnDFileUploaderProvider({ workspace, children }) {
    * @returns {{name:string,mime:string,contentString:string}[]}
    */
   function parseAttachments() {
-    return (
-      files
-        ?.filter((file) => file.type === "attachment")
-        ?.map(
-          (
-            /** @type {Attachment} */
-            attachment
-          ) => {
-            return {
-              name: attachment.file.name,
-              mime: attachment.file.type,
-              contentString: attachment.contentString,
-            };
-          }
-        ) || []
-    );
+    if (!files?.length) return [];
+
+    return files
+      ?.filter((attachment) => attachment.status !== "FAILED")
+      ?.map(
+        (
+          /** @type {Attachment} */
+          attachment
+        ) => {
+          const fileName = attachment.file?.name ?? "";
+          const mimeType = attachment.file?.type ?? "";
+          const documentId = attachment.document?.id ?? null;
+          const documentLocation = attachment.document?.location ?? null;
+          const previewUrl = attachment.contentString ?? null;
+
+          const fileUrl =
+            documentId && workspace?.slug
+              ? `${API_BASE}/workspace/${workspace.slug}/document/${documentId}/download`
+              : previewUrl;
+
+          return {
+            id: documentId,
+            documentId,
+            documentLocation,
+            name: fileName,
+            fileName,
+            mime: mimeType,
+            fileType: mimeType,
+            fileUrl: fileUrl || null,
+            contentString: attachment.contentString ?? null,
+            previewUrl,
+            size: attachment.file?.size ?? null,
+          };
+        }
+      )
+      ?.filter(Boolean);
   }
 
   /**

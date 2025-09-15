@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Info, Warning } from "@phosphor-icons/react";
+import { FilePdf, Paperclip, Info, Warning } from "@phosphor-icons/react";
 import UserIcon from "../../../../UserIcon";
 import Actions from "./Actions";
 import renderMarkdown from "@/utils/chat/markdown";
@@ -197,18 +197,93 @@ export default memo(
 );
 
 function ChatAttachments({ attachments = [] }) {
-  if (!attachments.length) return null;
+  const safeAttachments = (attachments || []).filter(Boolean);
+  if (!safeAttachments.length) return null;
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {attachments.map((item) => (
-        <img
-          key={item.name}
-          src={item.contentString}
-          className="max-w-[300px] rounded-md"
+    <div className="mt-3 flex flex-wrap gap-2">
+      {safeAttachments.map((attachment, index) => (
+        <AttachmentPreview
+          key={attachment?.id ?? `${attachment?.name ?? "attachment"}-${index}`}
+          attachment={attachment}
         />
       ))}
     </div>
   );
+}
+
+function AttachmentPreview({ attachment }) {
+  const fileType = (
+    attachment?.fileType ||
+    attachment?.mime ||
+    ""
+  ).toLowerCase();
+  const fileName = attachment?.fileName || attachment?.name || "Attachment";
+  const previewUrl =
+    attachment?.previewUrl || attachment?.contentString || null;
+  const fileUrl = attachment?.fileUrl || null;
+
+  const isImage = fileType.startsWith("image/") && !!previewUrl;
+  const isPdf =
+    fileType.includes("pdf") ||
+    fileName?.toLowerCase()?.endsWith(".pdf") ||
+    (attachment?.mime || "").toLowerCase().includes("pdf");
+
+  if (isImage) {
+    const imageHref = fileUrl || previewUrl;
+    const imageElement = (
+      <img
+        src={previewUrl}
+        alt={fileName}
+        className="max-h-48 w-full max-w-[280px] rounded-2xl border border-theme-chat-input-border object-cover"
+      />
+    );
+
+    if (imageHref) {
+      return (
+        <a
+          href={imageHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block overflow-hidden rounded-2xl no-underline transition-opacity hover:opacity-90"
+        >
+          {imageElement}
+        </a>
+      );
+    }
+    return imageElement;
+  }
+
+  const IconComponent = isPdf ? FilePdf : Paperclip;
+  const label = fileName || "Attachment";
+  const badge = (
+    <div className="flex max-w-[280px] items-center gap-2 rounded-2xl border border-theme-chat-input-border bg-theme-attachment-bg px-3 py-2 text-theme-text-primary light:bg-white/80">
+      <IconComponent
+        size={18}
+        weight="fill"
+        className="text-theme-attachment-icon"
+        aria-hidden
+      />
+      <span className="truncate text-sm font-medium text-theme-text-primary">
+        {label}
+      </span>
+    </div>
+  );
+
+  if (fileUrl) {
+    return (
+      <a
+        href={fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex max-w-[280px] no-underline transition-opacity hover:opacity-90"
+      >
+        {badge}
+      </a>
+    );
+  }
+
+  return <div className="inline-flex max-w-[280px]">{badge}</div>;
 }
 
 const RenderChatContent = memo(
