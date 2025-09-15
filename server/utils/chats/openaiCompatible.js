@@ -6,7 +6,10 @@ const {
   getLLMProvider,
   workspaceVectorNamespace,
 } = require("../helpers");
-const { writeResponseChunk } = require("../helpers/chat/responses");
+const {
+  writeResponseChunk,
+  filterPromptAttachments,
+} = require("../helpers/chat/responses");
 const { chatPrompt, sourceIdentifier } = require("./index");
 
 const { PassThrough } = require("stream");
@@ -21,6 +24,7 @@ async function chatSync({
 }) {
   const uuid = uuidv4();
   const chatMode = workspace?.chatMode ?? "chat";
+  const promptAttachments = filterPromptAttachments(attachments);
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
@@ -162,7 +166,7 @@ async function chatSync({
     userPrompt: String(prompt),
     contextTexts,
     chatHistory: history,
-    attachments,
+    attachments: promptAttachments,
   });
 
   // Send the text completion.
@@ -225,6 +229,7 @@ async function streamChat({
 }) {
   const uuid = uuidv4();
   const chatMode = workspace?.chatMode ?? "chat";
+  const promptAttachments = filterPromptAttachments(attachments);
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
@@ -397,7 +402,7 @@ async function streamChat({
     userPrompt: String(prompt),
     contextTexts,
     chatHistory: history,
-    attachments,
+    attachments: promptAttachments,
   });
 
   if (!LLMConnector.streamingEnabled()) {

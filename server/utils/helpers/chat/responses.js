@@ -316,13 +316,19 @@ function formatChatHistory(
     )
       return historicalMessage;
 
+    const filteredAttachments = filterPromptAttachments(
+      historicalMessage.attachments
+    );
+
+    if (!filteredAttachments.length) return historicalMessage;
+
     // Some providers, like Ollama, expect the content to be embedded in the message object.
     if (mode === "spread") {
       return {
         role: historicalMessage.role,
         ...formatterFunction({
           userPrompt: historicalMessage.content,
-          attachments: historicalMessage.attachments,
+          attachments: filteredAttachments,
         }),
       };
     }
@@ -332,9 +338,17 @@ function formatChatHistory(
       role: historicalMessage.role,
       content: formatterFunction({
         userPrompt: historicalMessage.content,
-        attachments: historicalMessage.attachments,
+        attachments: filteredAttachments,
       }),
     };
+  });
+}
+
+function filterPromptAttachments(attachments = []) {
+  if (!Array.isArray(attachments)) return [];
+  return attachments.filter((attachment) => {
+    const content = attachment?.contentString;
+    return typeof content === "string" && content.trim().length > 0;
   });
 }
 
@@ -347,4 +361,5 @@ module.exports = {
   clientAbortedHandler,
   formatChatHistory,
   safeJSONStringify,
+  filterPromptAttachments,
 };

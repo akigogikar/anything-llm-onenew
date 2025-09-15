@@ -6,7 +6,10 @@ const {
   getLLMProvider,
   workspaceVectorNamespace,
 } = require("../helpers");
-const { writeResponseChunk } = require("../helpers/chat/responses");
+const {
+  writeResponseChunk,
+  filterPromptAttachments,
+} = require("../helpers/chat/responses");
 const { grepAgents } = require("./agents");
 const {
   grepCommand,
@@ -29,6 +32,7 @@ async function streamChatWithWorkspace(
 ) {
   const uuid = uuidv4();
   const updatedMessage = await grepCommand(message, user);
+  const promptAttachments = filterPromptAttachments(attachments);
 
   if (Object.keys(VALID_COMMANDS).includes(updatedMessage)) {
     const data = await VALID_COMMANDS[updatedMessage](
@@ -222,7 +226,7 @@ async function streamChatWithWorkspace(
       userPrompt: updatedMessage,
       contextTexts,
       chatHistory,
-      attachments,
+      attachments: promptAttachments,
     },
     rawHistory
   );
