@@ -8,8 +8,14 @@ import { useModal } from "@/hooks/useModal";
 import RecoveryCodeModal from "@/components/Modals/DisplayRecoveryCodeModal";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
+import BrandLogo from "@/components/BrandLogo";
 
-const RecoveryForm = ({ onSubmit, setShowRecoveryForm }) => {
+const RecoveryForm = ({
+  onSubmit,
+  setShowRecoveryForm,
+  logoSrc,
+  brandName,
+}) => {
   const [username, setUsername] = useState("");
   const [recoveryCodeInputs, setRecoveryCodeInputs] = useState(
     Array(2).fill("")
@@ -29,81 +35,90 @@ const RecoveryForm = ({ onSubmit, setShowRecoveryForm }) => {
     onSubmit(username, recoveryCodes);
   };
 
+  const resolvedBrandName =
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center relative rounded-2xl border-none bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-8 px-0 py-4 w-full md:w-fit mt-10 md:mt-0"
-    >
-      <div className="flex items-start justify-between pt-11 pb-9 w-screen md:w-full md:px-12 px-6 ">
-        <div className="flex flex-col gap-y-4 w-full">
-          <h3 className="text-4xl md:text-lg font-bold text-theme-text-primary text-center md:text-left">
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
+        <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+          <BrandLogo
+            src={logoSrc}
+            alt={resolvedBrandName}
+            className="mx-auto"
+          />
+        </div>
+        <div className="px-6 pt-6 text-center md:text-left">
+          <h3 className="text-2xl font-semibold text-theme-text-primary">
             {t("login.password-reset.title")}
           </h3>
-          <p className="text-sm text-theme-text-secondary md:text-left md:max-w-[300px] px-4 md:px-0 text-center">
+          <p className="mt-3 text-sm text-theme-text-secondary">
             {t("login.password-reset.description")}
           </p>
         </div>
-      </div>
-      <div className="md:px-12 px-6 space-y-6 flex h-full w-full">
-        <div className="w-full flex flex-col gap-y-4">
-          <div className="flex flex-col gap-y-2">
-            <label className="text-white text-sm font-bold">
-              {t("login.multi-user.placeholder-username")}
-            </label>
-            <input
-              name="username"
-              type="text"
-              placeholder={t("login.multi-user.placeholder-username")}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-y-2">
-            <label className="text-white text-sm font-bold">
-              {t("login.password-reset.recovery-codes")}
-            </label>
-            {recoveryCodeInputs.map((code, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  name={`recoveryCode${index + 1}`}
-                  placeholder={t("login.password-reset.recovery-code", {
-                    index: index + 1,
-                  })}
-                  value={code}
-                  onChange={(e) =>
-                    handleRecoveryCodeChange(index, e.target.value)
-                  }
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
-                  required
-                />
-              </div>
-            ))}
+        <div className="px-6 pt-6">
+          <div className="flex flex-col gap-y-4">
+            <div className="flex flex-col gap-y-2">
+              <label className="text-sm font-semibold text-theme-text-primary">
+                {t("login.multi-user.placeholder-username")}
+              </label>
+              <input
+                name="username"
+                type="text"
+                placeholder={t("login.multi-user.placeholder-username")}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-y-2">
+              <label className="text-sm font-semibold text-theme-text-primary">
+                {t("login.password-reset.recovery-codes")}
+              </label>
+              {recoveryCodeInputs.map((code, index) => (
+                <div key={index}>
+                  <input
+                    type="text"
+                    name={`recoveryCode${index + 1}`}
+                    placeholder={t("login.password-reset.recovery-code", {
+                      index: index + 1,
+                    })}
+                    value={code}
+                    onChange={(e) =>
+                      handleRecoveryCodeChange(index, e.target.value)
+                    }
+                    className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
+                    required
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex items-center md:p-12 md:px-0 px-6 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
-        <button
-          type="submit"
-          className="md:text-primary-button md:bg-transparent md:w-[300px] text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
-        >
-          {t("login.password-reset.title")}
-        </button>
-        <button
-          type="button"
-          className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline -mb-8"
-          onClick={() => setShowRecoveryForm(false)}
-        >
-          {t("login.password-reset.back-to-login")}
-        </button>
+        <div className="px-6 pb-6 pt-8">
+          <div className="flex flex-col gap-y-4">
+            <button
+              type="submit"
+              className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
+            >
+              {t("login.password-reset.title")}
+            </button>
+            <button
+              type="button"
+              className="text-sm font-semibold text-theme-text-primary hover:text-primary-button hover:underline"
+              onClick={() => setShowRecoveryForm(false)}
+            >
+              {t("login.password-reset.back-to-login")}
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   );
 };
 
-const ResetPasswordForm = ({ onSubmit }) => {
+const ResetPasswordForm = ({ onSubmit, logoSrc, brandName }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -112,60 +127,63 @@ const ResetPasswordForm = ({ onSubmit }) => {
     onSubmit(newPassword, confirmPassword);
   };
 
+  const resolvedBrandName =
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col justify-center items-center relative rounded-2xl bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-8 px-0 py-4 w-full md:w-fit mt-10 md:mt-0"
-    >
-      <div className="flex items-start justify-between pt-11 pb-9 w-screen md:w-full md:px-12 px-6">
-        <div className="flex flex-col gap-y-4 w-full">
-          <h3 className="text-4xl md:text-2xl font-bold text-white text-center md:text-left">
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
+        <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+          <BrandLogo
+            src={logoSrc}
+            alt={resolvedBrandName}
+            className="mx-auto"
+          />
+        </div>
+        <div className="px-6 pt-6 text-center md:text-left">
+          <h3 className="text-2xl font-semibold text-theme-text-primary">
             Reset Password
           </h3>
-          <p className="text-sm text-white/90 md:text-left md:max-w-[300px] px-4 md:px-0 text-center">
+          <p className="mt-3 text-sm text-theme-text-secondary">
             Enter your new password.
           </p>
         </div>
-      </div>
-      <div className="md:px-12 px-6 space-y-6 flex h-full w-full">
-        <div className="w-full flex flex-col gap-y-4">
-          <div>
+        <div className="px-6 pt-6">
+          <div className="flex flex-col gap-y-4">
             <input
               type="password"
               name="newPassword"
               placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-white placeholder:text-theme-settings-input-placeholder text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
+              className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
               required
             />
-          </div>
-          <div>
             <input
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="border-none bg-theme-settings-input-bg text-white placeholder:text-theme-settings-input-placeholder text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
+              className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
               required
             />
           </div>
         </div>
-      </div>
-      <div className="flex items-center md:p-12 md:px-0 px-6 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
-        <button
-          type="submit"
-          className="md:text-primary-button md:bg-transparent md:w-[300px] text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
-        >
-          Reset Password
-        </button>
+        <div className="px-6 pb-6 pt-8">
+          <button
+            type="submit"
+            className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
+          >
+            Reset Password
+          </button>
+        </div>
       </div>
     </form>
   );
 };
 
-export default function MultiUserAuth() {
+export default function MultiUserAuth({ logoSrc, brandName }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -267,80 +285,99 @@ export default function MultiUserAuth() {
     fetchCustomAppName();
   }, []);
 
+  const resolvedBrandName =
+    customAppName ||
+    brandName ||
+    process.env?.NEXT_PUBLIC_BRAND_NAME ||
+    "LinbeckAI";
+
   if (showRecoveryForm) {
     return (
       <RecoveryForm
         onSubmit={handleRecoverySubmit}
         setShowRecoveryForm={setShowRecoveryForm}
+        logoSrc={logoSrc}
+        brandName={resolvedBrandName}
       />
     );
   }
 
   if (showResetPasswordForm)
-    return <ResetPasswordForm onSubmit={handleResetSubmit} />;
+    return (
+      <ResetPasswordForm
+        onSubmit={handleResetSubmit}
+        logoSrc={logoSrc}
+        brandName={resolvedBrandName}
+      />
+    );
   return (
     <>
-      <form onSubmit={handleLogin}>
-        <div className="flex flex-col justify-center items-center relative rounded-2xl bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-12 py-12 -mt-4 md:mt-0">
-          <div className="flex items-start justify-between pt-11 pb-9 rounded-t">
-            <div className="flex items-center flex-col gap-y-4">
-              <div className="flex gap-x-1">
-                <h3 className="text-md md:text-2xl font-bold text-white text-center white-space-nowrap hidden md:block">
-                  {t("login.multi-user.welcome")}
-                </h3>
-                <p className="text-4xl md:text-2xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
-                  {customAppName || "OneNew"}
-                </p>
-              </div>
-              <p className="text-sm text-theme-text-secondary text-center">
-                {t("login.sign-in.start")} {customAppName || "OneNew"}{" "}
+      <form onSubmit={handleLogin} className="w-full">
+        <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
+          <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+            <BrandLogo
+              src={logoSrc}
+              alt={resolvedBrandName}
+              className="mx-auto"
+            />
+          </div>
+          <div className="px-6 pt-6 text-center">
+            <div className="flex flex-col items-center gap-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-theme-text-secondary">
+                {t("login.multi-user.welcome")}
+              </h3>
+              <p className="text-3xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
+                {resolvedBrandName}
+              </p>
+              <p className="text-sm text-theme-text-secondary">
+                {t("login.sign-in.start")} {resolvedBrandName}{" "}
                 {t("login.sign-in.end")}
               </p>
             </div>
           </div>
-          <div className="w-full px-4 md:px-12">
-            <div className="w-full flex flex-col gap-y-4">
-              <div className="w-screen md:w-full md:px-0 px-6">
-                <input
-                  name="username"
-                  type="text"
-                  placeholder={t("login.multi-user.placeholder-username")}
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
-                  required={true}
-                  autoComplete="off"
-                />
-              </div>
-              <div className="w-screen md:w-full md:px-0 px-6">
-                <input
-                  name="password"
-                  type="password"
-                  placeholder={t("login.multi-user.placeholder-password")}
-                  className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
-                  required={true}
-                  autoComplete="off"
-                />
-              </div>
-              {error && <p className="text-red-400 text-sm">Error: {error}</p>}
+          <div className="px-6 pt-6">
+            <div className="flex flex-col gap-y-4">
+              <input
+                name="username"
+                type="text"
+                placeholder={t("login.multi-user.placeholder-username")}
+                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
+                required={true}
+                autoComplete="off"
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder={t("login.multi-user.placeholder-password")}
+                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
+                required={true}
+                autoComplete="off"
+              />
+              {error && <p className="text-sm text-error">Error: {error}</p>}
             </div>
           </div>
-          <div className="flex items-center md:p-12 px-10 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
-            <button
-              disabled={loading}
-              type="submit"
-              className="md:text-primary-button md:bg-transparent text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full"
-            >
-              {loading
-                ? t("login.multi-user.validating")
-                : t("login.multi-user.login")}
-            </button>
-            <button
-              type="button"
-              className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline"
-              onClick={handleResetPassword}
-            >
-              {t("login.multi-user.forgot-pass")}?
-              <b>{t("login.multi-user.reset")}</b>
-            </button>
+          <div className="px-6 pb-6 pt-8">
+            <div className="flex flex-col gap-y-4">
+              <button
+                disabled={loading}
+                type="submit"
+                className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
+              >
+                {loading
+                  ? t("login.multi-user.validating")
+                  : t("login.multi-user.login")}
+              </button>
+              <button
+                type="button"
+                className="text-sm font-semibold text-theme-text-primary hover:text-primary-button hover:underline"
+                onClick={handleResetPassword}
+              >
+                {t("login.multi-user.forgot-pass")}?
+                <span className="ml-1 font-bold">
+                  {t("login.multi-user.reset")}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </form>

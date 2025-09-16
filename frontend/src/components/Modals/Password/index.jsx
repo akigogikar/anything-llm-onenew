@@ -12,8 +12,10 @@ import illustration from "@/media/illustrations/login-illustration.svg";
 
 export default function PasswordModal({ mode = "single" }) {
   const { loginLogo } = useLogo();
+  const brandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 w-full overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] h-full bg-theme-bg-primary flex flex-col md:flex-row items-center justify-center">
+    <div className="fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-center overflow-x-hidden overflow-y-auto bg-theme-bg-primary px-4 py-10 md:flex-row md:px-10 md:py-0">
       <div
         style={{
           background: `
@@ -26,23 +28,19 @@ export default function PasswordModal({ mode = "single" }) {
         }}
         className="absolute left-0 top-0 z-0 h-full w-full"
       />
-      <div className="hidden md:flex md:w-1/2 md:h-full md:items-center md:justify-center">
+      <div className="hidden h-full w-1/2 items-center justify-center md:flex">
         <img
           className="w-full h-full object-contain z-50"
           src={illustration}
           alt="login illustration"
         />
       </div>
-      <div className="flex flex-col items-center justify-center h-full w-full md:w-1/2 z-50 relative md:-mt-20 mt-0 !border-none bg-theme-bg-secondary md:bg-transparent">
-        <img
-          src={loginLogo}
-          alt="Logo"
-          className={`hidden relative md:flex rounded-2xl w-fit m-4 z-30 ${
-            mode === "single" ? "md:top-2" : "md:top-12"
-          } absolute max-h-[65px]`}
-          style={{ objectFit: "contain" }}
-        />
-        {mode === "single" ? <SingleUserAuth /> : <MultiUserAuth />}
+      <div className="relative z-50 flex h-full w-full flex-col items-center justify-center md:w-1/2">
+        {mode === "single" ? (
+          <SingleUserAuth logoSrc={loginLogo} brandName={brandName} />
+        ) : (
+          <MultiUserAuth logoSrc={loginLogo} brandName={brandName} />
+        )}
       </div>
     </div>
   );
