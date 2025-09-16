@@ -33,14 +33,15 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
+      # Check that the required Docker Hub secrets exist
       - name: 🔍 Check DockerHub credentials
         id: dockerhub
         shell: bash
         run: |
-          if [[ -n "${{ secrets.DOCKER_USERNAME }}" && -n "${{ secrets.DOCKER_PASSWORD }}" ]]; then
-            echo "enabled=true" >> $GITHUB_OUTPUT
+          if [[ -n "${{ secrets.DOCKERHUB_USERNAME }}" && -n "${{ secrets.DOCKERHUB_TOKEN }}" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
-            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: 🧰 Set up QEMU for arm64 emulation
@@ -51,12 +52,13 @@ jobs:
         with:
           version: v0.22.0
 
+      # Only log in to Docker Hub if both secrets are defined
       - name: 🔐 Log in to DockerHub
         if: steps.dockerhub.outputs.enabled == 'true'
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 🔐 Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
@@ -88,7 +90,7 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
 
-      - name: 🧪 DEBUG - Display Tags
+      - name: 🧪 DEBUG – Display Tags
         run: |
           echo "GHCR Tags:"
           echo "${{ steps.meta_ghcr.outputs.tags }}"
@@ -128,8 +130,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ------ Optional Non-Blocking Steps Below ------
-
+      # optional non‑blocking steps (unchanged)
       - name: 🛡️ Collect CVE Exceptions (VEX files)
         id: cve-list
         continue-on-error: true
@@ -141,14 +142,14 @@ jobs:
             stripped_filename=${filename%.vex.json}
             CVE_NAMES+=" $stripped_filename"
           done
-          echo "CVE_EXCEPTIONS=$CVE_NAMES" >> $GITHUB_OUTPUT
+          echo "CVE_EXCEPTIONS=$CVE_NAMES" >> "$GITHUB_OUTPUT"
 
       - name: 🛡️ Log in to Docker (Scout)
         continue-on-error: true
         run: |
-          echo "${{ secrets.DOCKER_PAT }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          echo "${{ secrets.DOCKER_PAT }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: 🛡️ Add VEX Attestations (Docker Scout - non-blocking)
+      - name: 🛡️ Add VEX Attestations (Docker Scout – non‑blocking)
         continue-on-error: true
         env:
           CVE_EXCEPTIONS: ${{ steps.cve-list.outputs.CVE_EXCEPTIONS }}
