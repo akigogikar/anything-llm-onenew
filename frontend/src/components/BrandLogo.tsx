@@ -1,31 +1,32 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 type BrandLogoProps = {
-  src?: string | null;
+  logoUrl?: string | null;
   alt?: string;
   className?: string;
 };
 
-const defaultLogoSrc =
-  process.env?.NEXT_PUBLIC_BRAND_LOGO_URL || "/brand/logo.svg";
-const fallbackBrandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+const fallbackBrandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
 
 export default function BrandLogo({
-  src = defaultLogoSrc,
+  logoUrl,
   alt = fallbackBrandName,
   className = "",
 }: BrandLogoProps) {
-  const normalizedSrc = typeof src === "string" ? src.trim() : (src ?? "");
-  const hasImageSource = Boolean(normalizedSrc);
-  const textBrand = alt || fallbackBrandName;
+  const [imageFailed, setImageFailed] = useState(false);
+  const normalizedSrc = useMemo(
+    () => (typeof logoUrl === "string" ? logoUrl.trim() : (logoUrl ?? "")),
+    [logoUrl]
+  );
+  const resolvedAlt = alt || fallbackBrandName;
+  const shouldRenderImage = Boolean(normalizedSrc) && !imageFailed;
 
-  if (hasImageSource) {
+  if (shouldRenderImage) {
     return (
       <div
         className={[
-          "relative",
-          "h-[clamp(28px,6vw,56px)] w-[clamp(140px,30vw,260px)]",
-          "shrink-0 select-none",
+          "relative select-none",
+          "h-[clamp(24px,5vw,48px)] w-[clamp(120px,25vw,220px)]",
           className,
         ]
           .filter(Boolean)
@@ -33,9 +34,10 @@ export default function BrandLogo({
       >
         <img
           src={normalizedSrc as string}
-          alt={alt}
+          alt={resolvedAlt}
           className="h-full w-full object-contain"
           loading="eager"
+          onError={() => setImageFailed(true)}
         />
       </div>
     );
@@ -44,15 +46,15 @@ export default function BrandLogo({
   return (
     <div
       className={[
-        "font-serif tracking-wide text-center",
-        "text-[clamp(22px,5vw,40px)] leading-none",
+        "mx-auto text-center font-serif tracking-wide",
+        "text-[clamp(22px,5vw,40px)] leading-tight",
         "text-theme-text-primary",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {textBrand}
+      {resolvedAlt || fallbackBrandName}
     </div>
   );
 }
