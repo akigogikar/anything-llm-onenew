@@ -11,6 +11,12 @@ const {
   filterPromptAttachments,
 } = require("../helpers/chat/responses");
 const {
+  hydrateAttachmentsWithDocumentData,
+  collectSummaryContextsFromHistory,
+  shouldAnswerWithSummary,
+  buildSummaryReply,
+} = require("../helpers/chat/attachments");
+const {
   chatPrompt,
   sourceIdentifier,
   recentChatHistory,
@@ -59,7 +65,6 @@ async function chatSync({
 }) {
   const uuid = uuidv4();
   const chatMode = mode ?? "chat";
-  const promptAttachments = filterPromptAttachments(attachments);
 
   // If the user wants to reset the chat history we do so pre-flight
   // and continue execution. If no message is provided then the user intended
@@ -142,6 +147,47 @@ async function chatSync({
       });
   }
 
+  const {
+    attachments: hydratedAttachments,
+    summaryContexts: currentAttachmentSummaryContexts,
+  } = await hydrateAttachmentsWithDocumentData({
+    attachments,
+    workspace,
+  });
+  attachments = hydratedAttachments;
+  const promptAttachments = filterPromptAttachments(attachments);
+
+  if (shouldAnswerWithSummary(message, attachments)) {
+    const summaryResponse = buildSummaryReply(attachments);
+    if (summaryResponse) {
+      const { chat } = await WorkspaceChats.new({
+        workspaceId: workspace.id,
+        prompt: String(message),
+        response: {
+          text: summaryResponse,
+          sources: [],
+          attachments,
+          type: chatMode,
+          metrics: {},
+        },
+        threadId: thread?.id || null,
+        apiSessionId: sessionId,
+        user,
+      });
+
+      return {
+        id: uuid,
+        type: "textResponse",
+        sources: [],
+        close: true,
+        error: null,
+        chatId: chat.id,
+        textResponse: summaryResponse,
+        metrics: {},
+      };
+    }
+  }
+
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
@@ -197,6 +243,15 @@ async function chatSync({
     messageLimit,
     apiSessionId: sessionId,
   });
+
+  const historySummaryContexts = collectSummaryContextsFromHistory(rawHistory);
+  const combinedSummaryContexts = [
+    ...historySummaryContexts,
+    ...currentAttachmentSummaryContexts,
+  ];
+  if (combinedSummaryContexts.length) {
+    contextTexts = [...combinedSummaryContexts, ...contextTexts];
+  }
 
   await new DocumentManager({
     workspace,
@@ -385,7 +440,6 @@ async function streamChat({
 }) {
   const uuid = uuidv4();
   const chatMode = mode ?? "chat";
-  const promptAttachments = filterPromptAttachments(attachments);
 
   // If the user wants to reset the chat history we do so pre-flight
   // and continue execution. If no message is provided then the user intended
@@ -466,7 +520,56 @@ async function streamChat({
           close: true,
           error: false,
         });
+    });
+  }
+
+  const {
+    attachments: hydratedAttachments,
+    summaryContexts: currentAttachmentSummaryContexts,
+  } = await hydrateAttachmentsWithDocumentData({
+    attachments,
+    workspace,
+  });
+  attachments = hydratedAttachments;
+  const promptAttachments = filterPromptAttachments(attachments);
+
+  if (shouldAnswerWithSummary(message, attachments)) {
+    const summaryResponse = buildSummaryReply(attachments);
+    if (summaryResponse) {
+      const { chat } = await WorkspaceChats.new({
+        workspaceId: workspace.id,
+        prompt: String(message),
+        response: {
+          text: summaryResponse,
+          sources: [],
+          attachments,
+          type: chatMode,
+          metrics: {},
+        },
+        threadId: thread?.id || null,
+        apiSessionId: sessionId,
+        user,
       });
+
+      writeResponseChunk(response, {
+        uuid,
+        sources: [],
+        type: "textResponseChunk",
+        textResponse: summaryResponse,
+        close: true,
+        error: false,
+        metrics: {},
+      });
+      writeResponseChunk(response, {
+        uuid,
+        type: "finalizeResponseStream",
+        close: true,
+        error: false,
+        chatId: chat.id,
+        metrics: {},
+      });
+      return;
+    }
   }
 
   const LLMConnector = getLLMProvider({
@@ -529,6 +632,15 @@ async function streamChat({
     messageLimit,
     apiSessionId: sessionId,
   });
+
+  const historySummaryContexts = collectSummaryContextsFromHistory(rawHistory);
+  const combinedSummaryContexts = [
+    ...historySummaryContexts,
+    ...currentAttachmentSummaryContexts,
+  ];
+  if (combinedSummaryContexts.length) {
+    contextTexts = [...combinedSummaryContexts, ...contextTexts];
+  }
 
   // Look for pinned documents and see if the user decided to use this feature. We will also do a vector search
   // as pinning is a supplemental tool but it should be used with caution since it can easily blow up a context window.

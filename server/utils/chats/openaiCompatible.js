@@ -10,6 +10,12 @@ const {
   writeResponseChunk,
   filterPromptAttachments,
 } = require("../helpers/chat/responses");
+const {
+  hydrateAttachmentsWithDocumentData,
+  collectSummaryContextsFromAttachments,
+  shouldAnswerWithSummary,
+  buildSummaryReply,
+} = require("../helpers/chat/attachments");
 const { chatPrompt, sourceIdentifier } = require("./index");
 
 const { PassThrough } = require("stream");
@@ -24,7 +30,45 @@ async function chatSync({
 }) {
   const uuid = uuidv4();
   const chatMode = workspace?.chatMode ?? "chat";
+  const {
+    attachments: hydratedAttachments,
+    summaryContexts: currentAttachmentSummaryContexts,
+  } = await hydrateAttachmentsWithDocumentData({
+    attachments,
+    workspace,
+  });
+  attachments = hydratedAttachments;
   const promptAttachments = filterPromptAttachments(attachments);
+
+  if (shouldAnswerWithSummary(String(prompt ?? ""), attachments)) {
+    const summaryResponse = buildSummaryReply(attachments);
+    if (summaryResponse) {
+      await WorkspaceChats.new({
+        workspaceId: workspace.id,
+        prompt: String(prompt),
+        response: {
+          text: summaryResponse,
+          sources: [],
+          type: chatMode,
+          attachments,
+          metrics: {},
+        },
+      });
+
+      return formatJSON(
+        {
+          id: uuid,
+          type: "textResponse",
+          sources: [],
+          close: true,
+          error: null,
+          textResponse: summaryResponse,
+        },
+        { model: workspace.slug, finish_reason: "stop" }
+      );
+    }
+  }
+
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
@@ -90,6 +134,35 @@ async function chatSync({
         });
       });
     });
+
+  const summaryContextSet = new Set();
+  const combinedSummaryContexts = [];
+
+  for (const context of currentAttachmentSummaryContexts) {
+    if (typeof context === "string" && !summaryContextSet.has(context)) {
+      summaryContextSet.add(context);
+      combinedSummaryContexts.push(context);
+    }
+  }
+
+  if (Array.isArray(history) && history.length) {
+    const historyAttachments = history
+      .filter(
+        (message) =>
+          message && Array.isArray(message.attachments) && message.attachments.length
+      )
+      .flatMap((message) => message.attachments);
+    combinedSummaryContexts.push(
+      ...collectSummaryContextsFromAttachments(
+        historyAttachments,
+        summaryContextSet
+      )
+    );
+  }
+
+  if (combinedSummaryContexts.length) {
+    contextTexts = [...combinedSummaryContexts, ...contextTexts];
+  }
 
   const vectorSearchResults =
     embeddingsCount !== 0
@@ -229,7 +302,16 @@ async function streamChat({
 }) {
   const uuid = uuidv4();
   const chatMode = workspace?.chatMode ?? "chat";
+  const {
+    attachments: hydratedAttachments,
+    summaryContexts: currentAttachmentSummaryContexts,
+  } = await hydrateAttachmentsWithDocumentData({
+    attachments,
+    workspace,
+  });
+  attachments = hydratedAttachments;
   const promptAttachments = filterPromptAttachments(attachments);
+
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
     model: workspace?.chatModel,
@@ -238,6 +320,39 @@ async function streamChat({
   const namespace = workspaceVectorNamespace(workspace);
   const hasVectorizedSpace = await VectorDb.hasNamespace(namespace);
   const embeddingsCount = await VectorDb.namespaceCount(namespace);
+
+  if (shouldAnswerWithSummary(String(prompt ?? ""), attachments)) {
+    const summaryResponse = buildSummaryReply(attachments);
+    if (summaryResponse) {
+      await WorkspaceChats.new({
+        workspaceId: workspace.id,
+        prompt: String(prompt),
+        response: {
+          text: summaryResponse,
+          sources: [],
+          type: chatMode,
+          attachments,
+          metrics: {},
+        },
+      });
+
+      writeResponseChunk(
+        response,
+        formatJSON(
+          {
+            id: uuid,
+            type: "textResponse",
+            sources: [],
+            close: true,
+            error: null,
+            textResponse: summaryResponse,
+          },
+          { chunked: true, model: workspace.slug, finish_reason: "stop" }
+        )
+      );
+      return;
+    }
+  }
 
   // We don't want to write a new method for every LLM to support openAI calls
   // via the `handleStreamResponseV2` method handler. So here we create a passthrough
@@ -318,6 +433,35 @@ async function streamChat({
         });
       });
     });
+
+  const summaryContextSet = new Set();
+  const combinedSummaryContexts = [];
+
+  for (const context of currentAttachmentSummaryContexts) {
+    if (typeof context === "string" && !summaryContextSet.has(context)) {
+      summaryContextSet.add(context);
+      combinedSummaryContexts.push(context);
+    }
+  }
+
+  if (Array.isArray(history) && history.length) {
+    const historyAttachments = history
+      .filter(
+        (message) =>
+          message && Array.isArray(message.attachments) && message.attachments.length
+      )
+      .flatMap((message) => message.attachments);
+    combinedSummaryContexts.push(
+      ...collectSummaryContextsFromAttachments(
+        historyAttachments,
+        summaryContextSet
+      )
+    );
+  }
+
+  if (combinedSummaryContexts.length) {
+    contextTexts = [...combinedSummaryContexts, ...contextTexts];
+  }
 
   const vectorSearchResults =
     embeddingsCount !== 0

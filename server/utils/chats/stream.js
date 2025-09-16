@@ -10,6 +10,12 @@ const {
   writeResponseChunk,
   filterPromptAttachments,
 } = require("../helpers/chat/responses");
+const {
+  hydrateAttachmentsWithDocumentData,
+  collectSummaryContextsFromHistory,
+  shouldAnswerWithSummary,
+  buildSummaryReply,
+} = require("../helpers/chat/attachments");
 const { grepAgents } = require("./agents");
 const {
   grepCommand,
@@ -32,7 +38,6 @@ async function streamChatWithWorkspace(
 ) {
   const uuid = uuidv4();
   const updatedMessage = await grepCommand(message, user);
-  const promptAttachments = filterPromptAttachments(attachments);
 
   if (Object.keys(VALID_COMMANDS).includes(updatedMessage)) {
     const data = await VALID_COMMANDS[updatedMessage](
@@ -56,6 +61,54 @@ async function streamChatWithWorkspace(
     thread,
   });
   if (isAgentChat) return;
+
+  const {
+    attachments: hydratedAttachments,
+    summaryContexts: currentAttachmentSummaryContexts,
+  } = await hydrateAttachmentsWithDocumentData({
+    attachments,
+    workspace,
+  });
+  attachments = hydratedAttachments;
+  const promptAttachments = filterPromptAttachments(attachments);
+
+  if (shouldAnswerWithSummary(updatedMessage, attachments)) {
+    const summaryResponse = buildSummaryReply(attachments);
+    if (summaryResponse) {
+      const { chat } = await WorkspaceChats.new({
+        workspaceId: workspace.id,
+        prompt: message,
+        response: {
+          text: summaryResponse,
+          sources: [],
+          type: chatMode,
+          attachments,
+          metrics: {},
+        },
+        threadId: thread?.id || null,
+        user,
+      });
+
+      writeResponseChunk(response, {
+        uuid,
+        sources: [],
+        type: "textResponseChunk",
+        textResponse: summaryResponse,
+        close: true,
+        error: false,
+        metrics: {},
+      });
+      writeResponseChunk(response, {
+        uuid,
+        type: "finalizeResponseStream",
+        close: true,
+        error: false,
+        chatId: chat.id,
+        metrics: {},
+      });
+      return;
+    }
+  }
 
   const LLMConnector = getLLMProvider({
     provider: workspace?.chatProvider,
@@ -113,6 +166,15 @@ async function streamChatWithWorkspace(
     thread,
     messageLimit,
   });
+
+  const historySummaryContexts = collectSummaryContextsFromHistory(rawHistory);
+  const combinedSummaryContexts = [
+    ...historySummaryContexts,
+    ...currentAttachmentSummaryContexts,
+  ];
+  if (combinedSummaryContexts.length) {
+    contextTexts = [...combinedSummaryContexts, ...contextTexts];
+  }
 
   // Look for pinned documents and see if the user decided to use this feature. We will also do a vector search
   // as pinning is a supplemental tool but it should be used with caution since it can easily blow up a context window.
