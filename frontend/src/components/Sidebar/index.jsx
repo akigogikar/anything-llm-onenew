@@ -13,8 +13,6 @@ import paths from "@/utils/paths";
 import { useTranslation } from "react-i18next";
 import { useSidebarToggle, ToggleSidebarButton } from "./SidebarToggle";
 import SearchBox from "./SearchBox";
-import BrandLogo from "@/components/BrandLogo";
-
 export default function Sidebar() {
   const { user } = useUser();
   const { logo } = useLogo();
@@ -40,15 +38,11 @@ export default function Sidebar() {
         <div className="flex shrink-0 w-full justify-center my-[18px]">
           <div className="flex justify-between w-[250px] min-w-[250px]">
             <Link to={paths.home()} aria-label="Home">
-              <div
-                className={`transition-opacity duration-500 ${showSidebar ? "opacity-100" : "opacity-0"}`}
-              >
-                <BrandLogo
-                  logoUrl={logo}
-                  alt={brandName}
-                  className="!mx-0 !text-left"
-                />
-              </div>
+              <img
+                src={logo}
+                alt={brandName}
+                className={`rounded max-h-[24px] object-contain transition-opacity duration-500 ${showSidebar ? "opacity-100" : "opacity-0"}`}
+              />
             </Link>
             {canToggleSidebar && (
               <ToggleSidebarButton
@@ -87,6 +81,7 @@ export function SidebarMobileHeader() {
   const sidebarRef = useRef(null);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showBgOverlay, setShowBgOverlay] = useState(false);
+  const brandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
   const {
     showing: showingNewWsModal,
     showModal: showNewWsModal,
@@ -123,7 +118,12 @@ export function SidebarMobileHeader() {
           <List className="h-6 w-6" />
         </button>
         <div className="flex items-center justify-center flex-grow">
-          <BrandLogo logoUrl={logo} alt={brandName} className="mx-auto !h-6" />
+          <img
+            src={logo}
+            alt={brandName}
+            className="block mx-auto h-6 w-auto"
+            style={{ maxHeight: "40px", objectFit: "contain" }}
+          />
         </div>
         <div className="w-12"></div>
       </div>
@@ -149,10 +149,11 @@ export function SidebarMobileHeader() {
             {/* Header Information */}
             <div className="flex w-full items-center justify-between gap-x-4">
               <div className="flex shrink-1 w-fit items-center justify-start">
-                <BrandLogo
-                  logoUrl={logo}
+                <img
+                  src={logo}
                   alt={brandName}
-                  className="!mx-0 !text-left"
+                  className="rounded w-full max-h-[40px]"
+                  style={{ objectFit: "contain" }}
                 />
               </div>
               {(!user || user?.role !== "default") && (
