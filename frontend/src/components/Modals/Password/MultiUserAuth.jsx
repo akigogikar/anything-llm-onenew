@@ -13,7 +13,7 @@ import BrandLogo from "@/components/BrandLogo";
 const RecoveryForm = ({
   onSubmit,
   setShowRecoveryForm,
-  logoSrc,
+  logoUrl,
   brandName,
 }) => {
   const [username, setUsername] = useState("");
@@ -36,89 +36,86 @@ const RecoveryForm = ({
   };
 
   const resolvedBrandName =
-    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
-        <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+      <div className="w-full overflow-hidden rounded-3xl border border-theme-modal-border bg-theme-bg-secondary/90 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <BrandLogo
-            src={logoSrc}
+            logoUrl={logoUrl}
             alt={resolvedBrandName}
-            className="mx-auto"
+            className="mx-auto md:mx-0"
           />
-        </div>
-        <div className="px-6 pt-6 text-center md:text-left">
-          <h3 className="text-2xl font-semibold text-theme-text-primary">
+          <h3 className="mt-6 text-xl font-semibold text-theme-text-primary">
             {t("login.password-reset.title")}
           </h3>
-          <p className="mt-3 text-sm text-theme-text-secondary">
+          <p className="mt-2 text-sm text-theme-text-secondary">
             {t("login.password-reset.description")}
           </p>
         </div>
-        <div className="px-6 pt-6">
-          <div className="flex flex-col gap-y-4">
-            <div className="flex flex-col gap-y-2">
-              <label className="text-sm font-semibold text-theme-text-primary">
-                {t("login.multi-user.placeholder-username")}
-              </label>
+        <div className="mt-8 space-y-4">
+          <div className="space-y-2">
+            <label
+              className="text-sm font-semibold text-theme-text-primary"
+              htmlFor="recovery-username"
+            >
+              {t("login.multi-user.placeholder-username")}
+            </label>
+            <input
+              id="recovery-username"
+              name="username"
+              type="text"
+              placeholder={t("login.multi-user.placeholder-username")}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <span className="text-sm font-semibold text-theme-text-primary">
+              {t("login.password-reset.recovery-codes")}
+            </span>
+            {recoveryCodeInputs.map((code, index) => (
               <input
-                name="username"
+                key={index}
                 type="text"
-                placeholder={t("login.multi-user.placeholder-username")}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
+                name={`recoveryCode${index + 1}`}
+                placeholder={t("login.password-reset.recovery-code", {
+                  index: index + 1,
+                })}
+                value={code}
+                onChange={(e) =>
+                  handleRecoveryCodeChange(index, e.target.value)
+                }
+                className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
                 required
               />
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <label className="text-sm font-semibold text-theme-text-primary">
-                {t("login.password-reset.recovery-codes")}
-              </label>
-              {recoveryCodeInputs.map((code, index) => (
-                <div key={index}>
-                  <input
-                    type="text"
-                    name={`recoveryCode${index + 1}`}
-                    placeholder={t("login.password-reset.recovery-code", {
-                      index: index + 1,
-                    })}
-                    value={code}
-                    onChange={(e) =>
-                      handleRecoveryCodeChange(index, e.target.value)
-                    }
-                    className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-                    required
-                  />
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
-        <div className="px-6 pb-6 pt-8">
-          <div className="flex flex-col gap-y-4">
-            <button
-              type="submit"
-              className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
-            >
-              {t("login.password-reset.title")}
-            </button>
-            <button
-              type="button"
-              className="text-sm font-semibold text-theme-text-primary hover:text-primary-button hover:underline"
-              onClick={() => setShowRecoveryForm(false)}
-            >
-              {t("login.password-reset.back-to-login")}
-            </button>
-          </div>
+        <div className="mt-8 flex flex-col gap-y-3">
+          <button
+            type="submit"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary-button px-4 text-sm font-semibold text-dark-text transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {t("login.password-reset.title")}
+          </button>
+          <button
+            type="button"
+            className="text-sm font-semibold text-theme-text-secondary hover:text-primary-button focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button"
+            onClick={() => setShowRecoveryForm(false)}
+          >
+            {t("login.password-reset.back-to-login")}
+          </button>
         </div>
       </div>
     </form>
   );
 };
 
-const ResetPasswordForm = ({ onSubmit, logoSrc, brandName }) => {
+const ResetPasswordForm = ({ onSubmit, logoUrl, brandName }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -128,54 +125,64 @@ const ResetPasswordForm = ({ onSubmit, logoSrc, brandName }) => {
   };
 
   const resolvedBrandName =
-    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
+  const newPasswordLabel = t("login.password-reset.new-password", {
+    defaultValue: "New Password",
+  });
+  const confirmPasswordLabel = t("login.password-reset.confirm-password", {
+    defaultValue: "Confirm Password",
+  });
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
-        <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+      <div className="w-full overflow-hidden rounded-3xl border border-theme-modal-border bg-theme-bg-secondary/90 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <BrandLogo
-            src={logoSrc}
+            logoUrl={logoUrl}
             alt={resolvedBrandName}
-            className="mx-auto"
+            className="mx-auto md:mx-0"
           />
-        </div>
-        <div className="px-6 pt-6 text-center md:text-left">
-          <h3 className="text-2xl font-semibold text-theme-text-primary">
-            Reset Password
+          <h3 className="mt-6 text-xl font-semibold text-theme-text-primary">
+            {t("login.password-reset.title")}
           </h3>
-          <p className="mt-3 text-sm text-theme-text-secondary">
-            Enter your new password.
+          <p className="mt-2 text-sm text-theme-text-secondary">
+            {t("login.password-reset.description")}
           </p>
         </div>
-        <div className="px-6 pt-6">
-          <div className="flex flex-col gap-y-4">
-            <input
-              type="password"
-              name="newPassword"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-              required
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-              required
-            />
-          </div>
+        <div className="mt-8 space-y-4">
+          <label className="sr-only" htmlFor="reset-new-password">
+            {newPasswordLabel}
+          </label>
+          <input
+            id="reset-new-password"
+            type="password"
+            name="newPassword"
+            placeholder={newPasswordLabel}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+            required
+          />
+          <label className="sr-only" htmlFor="reset-confirm-password">
+            {confirmPasswordLabel}
+          </label>
+          <input
+            id="reset-confirm-password"
+            type="password"
+            name="confirmPassword"
+            placeholder={confirmPasswordLabel}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+            required
+          />
         </div>
-        <div className="px-6 pb-6 pt-8">
+        <div className="mt-8">
           <button
             type="submit"
-            className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary-button px-4 text-sm font-semibold text-dark-text transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Reset Password
+            {t("login.password-reset.title")}
           </button>
         </div>
       </div>
@@ -183,7 +190,7 @@ const ResetPasswordForm = ({ onSubmit, logoSrc, brandName }) => {
   );
 };
 
-export default function MultiUserAuth({ logoSrc, brandName }) {
+export default function MultiUserAuth({ logoUrl, brandName }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -193,7 +200,6 @@ export default function MultiUserAuth({ logoSrc, brandName }) {
   const [token, setToken] = useState(null);
   const [showRecoveryForm, setShowRecoveryForm] = useState(false);
   const [showResetPasswordForm, setShowResetPasswordForm] = useState(false);
-  const [customAppName, setCustomAppName] = useState(null);
 
   const {
     isOpen: isRecoveryCodeModalOpen,
@@ -276,27 +282,15 @@ export default function MultiUserAuth({ logoSrc, brandName }) {
     }
   }, [downloadComplete, user, token]);
 
-  useEffect(() => {
-    const fetchCustomAppName = async () => {
-      const { appName } = await System.fetchCustomAppName();
-      setCustomAppName(appName || "");
-      setLoading(false);
-    };
-    fetchCustomAppName();
-  }, []);
-
   const resolvedBrandName =
-    customAppName ||
-    brandName ||
-    process.env?.NEXT_PUBLIC_BRAND_NAME ||
-    "LinbeckAI";
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
 
   if (showRecoveryForm) {
     return (
       <RecoveryForm
         onSubmit={handleRecoverySubmit}
         setShowRecoveryForm={setShowRecoveryForm}
-        logoSrc={logoSrc}
+        logoUrl={logoUrl}
         brandName={resolvedBrandName}
       />
     );
@@ -306,78 +300,80 @@ export default function MultiUserAuth({ logoSrc, brandName }) {
     return (
       <ResetPasswordForm
         onSubmit={handleResetSubmit}
-        logoSrc={logoSrc}
+        logoUrl={logoUrl}
         brandName={resolvedBrandName}
       />
     );
   return (
     <>
       <form onSubmit={handleLogin} className="w-full">
-        <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
-          <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+        <div className="w-full overflow-hidden rounded-3xl border border-theme-modal-border bg-theme-bg-secondary/90 p-8 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-col items-center text-center">
             <BrandLogo
-              src={logoSrc}
+              logoUrl={logoUrl}
               alt={resolvedBrandName}
               className="mx-auto"
             />
+            <h3 className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-theme-text-secondary">
+              {t("login.multi-user.welcome")}
+            </h3>
+            <p className="mt-3 text-2xl font-semibold text-theme-text-primary">
+              {resolvedBrandName}
+            </p>
+            <p className="mt-2 text-sm text-theme-text-secondary">
+              {t("login.sign-in.start")} {resolvedBrandName}{" "}
+              {t("login.sign-in.end")}
+            </p>
           </div>
-          <div className="px-6 pt-6 text-center">
-            <div className="flex flex-col items-center gap-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-theme-text-secondary">
-                {t("login.multi-user.welcome")}
-              </h3>
-              <p className="text-3xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
-                {resolvedBrandName}
-              </p>
-              <p className="text-sm text-theme-text-secondary">
-                {t("login.sign-in.start")} {resolvedBrandName}{" "}
-                {t("login.sign-in.end")}
-              </p>
-            </div>
+          <div className="mt-8 space-y-4">
+            <label className="sr-only" htmlFor="multi-user-username">
+              {t("login.multi-user.placeholder-username")}
+            </label>
+            <input
+              id="multi-user-username"
+              name="username"
+              type="text"
+              placeholder={t("login.multi-user.placeholder-username")}
+              className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+              required
+              autoComplete="off"
+            />
+            <label className="sr-only" htmlFor="multi-user-password">
+              {t("login.multi-user.placeholder-password")}
+            </label>
+            <input
+              id="multi-user-password"
+              name="password"
+              type="password"
+              placeholder={t("login.multi-user.placeholder-password")}
+              className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+              required
+              autoComplete="off"
+            />
+            {error && (
+              <p className="text-sm font-medium text-error">Error: {error}</p>
+            )}
           </div>
-          <div className="px-6 pt-6">
-            <div className="flex flex-col gap-y-4">
-              <input
-                name="username"
-                type="text"
-                placeholder={t("login.multi-user.placeholder-username")}
-                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-                required={true}
-                autoComplete="off"
-              />
-              <input
-                name="password"
-                type="password"
-                placeholder={t("login.multi-user.placeholder-password")}
-                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-                required={true}
-                autoComplete="off"
-              />
-              {error && <p className="text-sm text-error">Error: {error}</p>}
-            </div>
-          </div>
-          <div className="px-6 pb-6 pt-8">
-            <div className="flex flex-col gap-y-4">
-              <button
-                disabled={loading}
-                type="submit"
-                className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
-              >
-                {loading
-                  ? t("login.multi-user.validating")
-                  : t("login.multi-user.login")}
-              </button>
-              <button
-                type="button"
-                className="text-sm font-semibold text-theme-text-primary hover:text-primary-button hover:underline"
-                onClick={handleResetPassword}
-              >
-                {t("login.multi-user.forgot-pass")}?
-                <span className="ml-1 font-bold">
-                  {t("login.multi-user.reset")}
-                </span>
-              </button>
-            </div>
+          <div className="mt-8 flex flex-col gap-y-3">
+            <button
+              disabled={loading}
+              type="submit"
+              className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary-button px-4 text-sm font-semibold text-dark-text transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading
+                ? t("login.multi-user.validating")
+                : t("login.multi-user.login")}
+            </button>
+            <button
+              type="button"
+              className="text-sm font-semibold text-theme-text-secondary hover:text-primary-button focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button"
+              onClick={handleResetPassword}
+            >
+              {t("login.multi-user.forgot-pass")}?
+              <span className="ml-1 font-bold">
+                {t("login.multi-user.reset")}
+              </span>
+            </button>
           </div>
         </div>
       </form>

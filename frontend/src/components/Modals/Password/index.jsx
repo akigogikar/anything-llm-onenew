@@ -9,38 +9,61 @@ import {
 } from "../../../utils/constants";
 import useLogo from "../../../hooks/useLogo";
 import illustration from "@/media/illustrations/login-illustration.svg";
+import BrandLogo from "@/components/BrandLogo";
+import { useTranslation } from "react-i18next";
 
 export default function PasswordModal({ mode = "single" }) {
   const { loginLogo } = useLogo();
-  const brandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "LinbeckAI";
+  const { t } = useTranslation();
+  const defaultBrandName = process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
+  const [brandName, setBrandName] = useState(defaultBrandName);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function hydrateBrandName() {
+      const { appName } = await System.fetchCustomAppName();
+      if (!isMounted) return;
+      setBrandName(appName || defaultBrandName);
+    }
+
+    hydrateBrandName();
+    return () => {
+      isMounted = false;
+    };
+  }, [defaultBrandName]);
 
   return (
-    <div className="fixed inset-0 z-50 flex h-full w-full flex-col items-center justify-center overflow-x-hidden overflow-y-auto bg-theme-bg-primary px-4 py-10 md:flex-row md:px-10 md:py-0">
-      <div
-        style={{
-          background: `
-    radial-gradient(circle at center, transparent 40%, black 100%),
-    linear-gradient(180deg, #85F8FF 0%, #65A6F2 100%)
-  `,
-          width: "575px",
-          filter: "blur(150px)",
-          opacity: "0.4",
-        }}
-        className="absolute left-0 top-0 z-0 h-full w-full"
-      />
-      <div className="hidden h-full w-1/2 items-center justify-center md:flex">
+    <div className="flex min-h-screen flex-col bg-theme-bg-primary md:flex-row">
+      <div className="relative hidden flex-1 items-center justify-center overflow-hidden md:flex">
         <img
-          className="w-full h-full object-contain z-50"
+          className="absolute inset-0 h-full w-full object-cover"
           src={illustration}
-          alt="login illustration"
+          alt=""
+          aria-hidden="true"
         />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-black/80"
+          aria-hidden="true"
+        />
+        <div className="relative z-10 flex max-w-lg flex-col items-center gap-y-4 px-10 text-center text-white">
+          <BrandLogo
+            logoUrl={loginLogo}
+            alt={brandName}
+            className="drop-shadow-lg !text-white"
+          />
+          <p className="text-sm text-white/80">
+            {t("login.sign-in.start")} {brandName} {t("login.sign-in.end")}
+          </p>
+        </div>
       </div>
-      <div className="relative z-50 flex h-full w-full flex-col items-center justify-center md:w-1/2">
-        {mode === "single" ? (
-          <SingleUserAuth logoSrc={loginLogo} brandName={brandName} />
-        ) : (
-          <MultiUserAuth logoSrc={loginLogo} brandName={brandName} />
-        )}
+      <div className="flex w-full items-center justify-center px-4 py-12 md:w-[min(50%,40rem)] md:px-12">
+        <div className="w-full max-w-md">
+          {mode === "single" ? (
+            <SingleUserAuth logoUrl={loginLogo} brandName={brandName} />
+          ) : (
+            <MultiUserAuth logoUrl={loginLogo} brandName={brandName} />
+          )}
+        </div>
       </div>
     </div>
   );

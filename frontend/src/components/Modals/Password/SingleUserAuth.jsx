@@ -8,14 +8,13 @@ import RecoveryCodeModal from "@/components/Modals/DisplayRecoveryCodeModal";
 import { useTranslation } from "react-i18next";
 import BrandLogo from "@/components/BrandLogo";
 
-export default function SingleUserAuth({ logoSrc, brandName }) {
+export default function SingleUserAuth({ logoUrl, brandName }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recoveryCodes, setRecoveryCodes] = useState([]);
   const [downloadComplete, setDownloadComplete] = useState(false);
   const [token, setToken] = useState(null);
-  const [customAppName, setCustomAppName] = useState(null);
 
   const {
     isOpen: isRecoveryCodeModalOpen,
@@ -59,64 +58,52 @@ export default function SingleUserAuth({ logoSrc, brandName }) {
     }
   }, [downloadComplete, token]);
 
-  useEffect(() => {
-    const fetchCustomAppName = async () => {
-      const { appName } = await System.fetchCustomAppName();
-      setCustomAppName(appName || "");
-      setLoading(false);
-    };
-    fetchCustomAppName();
-  }, []);
-
   const resolvedBrandName =
-    customAppName ||
-    brandName ||
-    process.env?.NEXT_PUBLIC_BRAND_NAME ||
-    "LinbeckAI";
+    brandName || process.env?.NEXT_PUBLIC_BRAND_NAME || "OneNew";
 
   return (
     <>
       <form onSubmit={handleLogin} className="w-full">
-        <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-theme-modal-border bg-theme-bg-secondary shadow-xl backdrop-blur">
-          <div className="flex items-center justify-center overflow-hidden px-6 pt-6">
+        <div className="w-full overflow-hidden rounded-3xl border border-theme-modal-border bg-theme-bg-secondary/90 p-8 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-col items-center text-center">
             <BrandLogo
-              src={logoSrc}
+              logoUrl={logoUrl}
               alt={resolvedBrandName}
               className="mx-auto"
             />
+            <h3 className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-theme-text-secondary">
+              {t("login.multi-user.welcome")}
+            </h3>
+            <p className="mt-3 text-2xl font-semibold text-theme-text-primary">
+              {resolvedBrandName}
+            </p>
+            <p className="mt-2 text-sm text-theme-text-secondary">
+              {t("login.sign-in.start")} {resolvedBrandName}{" "}
+              {t("login.sign-in.end")}
+            </p>
           </div>
-          <div className="px-6 pt-6 text-center">
-            <div className="flex flex-col items-center gap-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-theme-text-secondary">
-                {t("login.multi-user.welcome")}
-              </h3>
-              <p className="text-3xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
-                {resolvedBrandName}
-              </p>
-              <p className="text-sm text-theme-text-secondary">
-                {t("login.sign-in.start")} {resolvedBrandName}{" "}
-                {t("login.sign-in.end")}
-              </p>
-            </div>
+          <div className="mt-8 space-y-4">
+            <label className="sr-only" htmlFor="single-user-password">
+              {t("login.multi-user.placeholder-password")}
+            </label>
+            <input
+              id="single-user-password"
+              name="password"
+              type="password"
+              placeholder={t("login.multi-user.placeholder-password")}
+              className="h-12 w-full rounded-xl border border-transparent bg-theme-settings-input-bg px-4 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-button focus-visible:ring-offset-0"
+              required
+              autoComplete="off"
+            />
+            {error && (
+              <p className="text-sm font-medium text-error">Error: {error}</p>
+            )}
           </div>
-          <div className="px-6 pt-6">
-            <div className="flex flex-col gap-y-4">
-              <input
-                name="password"
-                type="password"
-                placeholder="Password"
-                className="h-12 w-full rounded-md border-none bg-theme-settings-input-bg p-2.5 text-sm text-theme-text-primary placeholder:text-theme-settings-input-placeholder outline-none focus:outline-primary-button active:outline-primary-button"
-                required={true}
-                autoComplete="off"
-              />
-              {error && <p className="text-sm text-error">Error: {error}</p>}
-            </div>
-          </div>
-          <div className="px-6 pb-6 pt-8">
+          <div className="mt-8">
             <button
               disabled={loading}
               type="submit"
-              className="h-12 w-full rounded-md border-[1.5px] border-primary-button bg-primary-button text-sm font-bold text-dark-text focus:outline-none focus:ring-4 md:h-[42px] md:bg-transparent md:text-primary-button md:hover:bg-primary-button md:hover:text-white"
+              className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary-button px-4 text-sm font-semibold text-dark-text transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-button disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading
                 ? t("login.multi-user.validating")
